@@ -1,6 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { Socket } from "socket.io";
-import { UserToken } from "../types/UserToken";
 import { JwtService } from "@nestjs/jwt";
 
 @Injectable()

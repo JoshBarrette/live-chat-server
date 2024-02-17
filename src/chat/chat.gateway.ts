@@ -31,12 +31,23 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage("send_message")
   @UseGuards(WsGuard)
   handleSendMessage(
-    @MessageBody("username") username: string,
+    @MessageBody("user")
+    user: {
+      firstName: string;
+      lastName: string;
+      picture: string;
+    },
     @MessageBody("message") message: string,
     @ConnectedSocket() socket: Socket,
   ): void {
     this.server.emit("new_message", {
-      data: { username, message },
+      data: {
+        username:
+          user.firstName +
+          (user.lastName !== undefined ? " " + user.lastName : ""),
+        message,
+        picture: user.picture,
+      },
     });
   }
 }
