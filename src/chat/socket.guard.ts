@@ -1,5 +1,4 @@
 import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
-import { WsException } from "@nestjs/websockets";
 import { Socket } from "socket.io";
 import { UserToken } from "../types/UserToken";
 import { JwtService } from "@nestjs/jwt";
@@ -13,10 +12,16 @@ export class WsGuard implements CanActivate {
     const token = client.handshake.auth.token;
 
     if (!token) {
-      throw new WsException("UNAUTHORIZED");
+      return false;
     }
-    // const a: UserToken = this.jwt.decode(token);
-    // TODO: user DB here
+
+    // TODO: user DB
+    try {
+      this.jwt.verify(token);
+      return true;
+    } catch (e) {
+      return false;
+    }
 
     return true;
   }

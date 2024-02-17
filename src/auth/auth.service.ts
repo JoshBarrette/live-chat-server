@@ -11,7 +11,12 @@ export class AuthService {
       res.send({ error: "No user from google" });
     }
 
-    res.redirect(`${process.env.FRONT_END_URL}/?token=${this.jwt.sign(req.user)}`);
+    return res
+      .cookie("chat_token", this.jwt.sign(req.user), {
+        path: "/",
+        maxAge: 1000 * 60 * 60 * 12, // 12 hours
+      })
+      .redirect(`${process.env.FRONT_END_URL}`);
     // res.send({
     //   token: this.jwt.sign(req.user),
     // });

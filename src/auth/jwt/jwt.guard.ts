@@ -1,18 +1,20 @@
-import { CanActivate, ExecutionContext } from "@nestjs/common";
-import { Request } from "express";
+import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
+import { Request, Response } from "express";
 import { JwtService } from "@nestjs/jwt";
 
+@Injectable()
 export class JwtGuard implements CanActivate {
   constructor(private jwt: JwtService) {}
 
   async canActivate(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest<Request>();
-    const token = req.body.chat_token;
+    const res = context.switchToHttp().getResponse<Response>();
 
     try {
-      this.jwt.verify(token);
+      this.jwt.verify(req.headers.authorization);
       return true;
     } catch (e) {
+      res.redirect("/api/auth/jwt/clearCookie");
       return false;
     }
   }
