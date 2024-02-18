@@ -1,4 +1,4 @@
-import { UseGuards } from "@nestjs/common";
+import { Req, UseGuards } from "@nestjs/common";
 import {
   ConnectedSocket,
   MessageBody,
@@ -10,11 +10,15 @@ import {
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { WsGuard } from "./socket.guard";
+import { MessageGuard } from "src/message/message.guard";
+import { MessageService } from "src/message/message.service";
 
 @WebSocketGateway()
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
+
+  constructor(private readonly messageService: MessageService) {}
 
   handleConnection(client: Socket, ...args: any[]) {}
 
@@ -29,7 +33,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage("send_message")
-  @UseGuards(WsGuard)
+  @UseGuards(WsGuard, MessageGuard)
   handleSendMessage(
     @MessageBody("user")
     user: {
@@ -39,6 +43,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     },
     @MessageBody("message") message: string,
     @ConnectedSocket() socket: Socket,
+    @Req() request: any,
   ): void {
     this.server.emit("new_message", {
       data: {
@@ -48,6 +53,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         message,
         picture: user.picture,
       },
+    });
+
+    this.messageService.addMessage({
+      sender: request.user_id,
+      content: message,
     });
   }
 }

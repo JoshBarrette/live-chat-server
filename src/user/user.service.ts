@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { User } from "./schemas/user.schema";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
@@ -19,16 +19,36 @@ export class UserService {
     });
   }
 
+  getUserByEmail(email: string): Promise<User> {
+    return new Promise<User>(
+      async (res, rej) =>
+        await this.userModel
+          .findOne({ email: email })
+          .then((user) => {
+            res(user);
+          })
+          .catch((e) => rej(e)),
+    );
+  }
+
   getUserById(id: string): Promise<User> {
-    return new Promise<User>(async (res, rej) => {
-      const user = await this.userModel
-        .findById(id)
-        .then((u) => u)
-        .catch((e) => rej(e));
-      if (user) {
-        res(user);
-      }
-      rej("User Not Found");
-    });
+    return new Promise<User>(
+      async (res, rej) =>
+        await this.userModel
+          .findById(id)
+          .then((user) => {
+            res(user);
+          })
+          .catch((e) => rej(e)),
+    );
+  }
+
+  async updateUserPicture(picture: string, email: string) {
+    // If we don't await then the update won't go through
+    await this.userModel.findOneAndUpdate(
+      { email: email },
+      { $set: { picture } },
+      { new: true },
+    );
   }
 }

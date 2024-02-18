@@ -4,6 +4,7 @@ import { AppController } from "./app.controller";
 import { ChatModule } from "./chat/chat.module";
 import { MongooseModule } from "@nestjs/mongoose";
 import { ConfigModule } from "@nestjs/config";
+import { MessageModule } from './message/message.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { ConfigModule } from "@nestjs/config";
     AuthModule,
     ChatModule,
     MongooseModule.forRoot(process.env.MONGO_DB_URL),
+    MessageModule,
   ],
   controllers: [AppController],
   exports: [],

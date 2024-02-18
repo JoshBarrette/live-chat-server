@@ -2,6 +2,7 @@ import { Controller, Get, Req, Res, UseGuards } from "@nestjs/common";
 import { Request, Response } from "express";
 import { AuthGuard } from "@nestjs/passport";
 import { AuthService } from "./auth.service";
+import { UserGuard } from "src/user/user.guard";
 
 @Controller("auth")
 export class AuthController {
@@ -12,7 +13,7 @@ export class AuthController {
   handleLogin() {}
 
   @Get("google/redirect")
-  @UseGuards(AuthGuard("google"))
+  @UseGuards(AuthGuard("google"), UserGuard)
   handleRedirect(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
