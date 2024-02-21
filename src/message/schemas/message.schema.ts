@@ -6,8 +6,9 @@ export type MessageDocument = HydratedDocument<Message>;
 
 @Schema({ timestamps: true })
 export class Message {
-  @Prop({ type: mongoose.Schema.Types.ObjectId, default: new Types.ObjectId() })
-  _id: string;
+  get _id(): string {
+    return this._id.toString();
+  }
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "User", required: true })
   sender: User;
