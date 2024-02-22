@@ -4,7 +4,7 @@ import { UserToken } from "src/types/UserToken";
 import { UserService } from "./user.service";
 
 @Injectable()
-export class UserGuard implements CanActivate {
+export class UserSignInGuard implements CanActivate {
   constructor(private userService: UserService) {}
 
   async canActivate(context: ExecutionContext) {

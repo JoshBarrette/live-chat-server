@@ -3,6 +3,7 @@ import { User } from "./schemas/user.schema";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { UserDto } from "./schemas/user.dto";
+import { UserToken } from "src/types/UserToken";
 
 @Injectable()
 export class UserService {
@@ -50,5 +51,21 @@ export class UserService {
       { $set: { picture } },
       { new: true },
     );
+  }
+
+  async handleUserForGuard(token: UserToken): Promise<User> {
+    const user = await this.getUserByEmail(token.email);
+    if (!user) {
+      var newUser = await this.addUser({
+        email: token.email,
+        firstName: token.firstName,
+        lastName: token.lastName,
+        picture: token.picture,
+      });
+    } else if (user.picture !== token.picture) {
+      await this.updateUserPicture(user.picture, user.email);
+    }
+
+    return user ?? newUser;
   }
 }

@@ -1,8 +1,10 @@
 import { Module } from "@nestjs/common";
 import { JwtModule as NestJwtModule } from "@nestjs/jwt";
-import { JwtGuard } from "./jwt.guard";
+import { JwtHttpGuard } from "./jwt-http.guard";
 import { JwtController } from "./jwt.controller";
 import { ConfigModule } from "@nestjs/config";
+import { UserModule } from "src/user/user.module";
+import { JwtSocketGuard } from "./jwt-socket.guard";
 
 @Module({
   imports: [
@@ -11,9 +13,10 @@ import { ConfigModule } from "@nestjs/config";
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: "12h" },
     }),
+    UserModule,
   ],
-  providers: [JwtGuard],
-  exports: [NestJwtModule, JwtGuard],
+  providers: [JwtHttpGuard, JwtSocketGuard],
+  exports: [NestJwtModule, JwtHttpGuard, JwtSocketGuard],
   controllers: [JwtController],
 })
 export class JwtModule {}

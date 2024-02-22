@@ -9,11 +9,12 @@ import {
   WebSocketServer,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
-import { WsGuard } from "./socket.guard";
-import { MessageGuard } from "src/message/message.guard";
 import { MessageService } from "src/message/message.service";
 import { JwtService } from "@nestjs/jwt";
 import { UserToken } from "src/types/UserToken";
+import { Request } from "express";
+import { User } from "src/user/schemas/user.schema";
+import { JwtSocketGuard } from "src/auth/jwt/jwt-socket.guard";
 
 @WebSocketGateway({ namespace: "chat" })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -70,7 +71,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // }
 
   @SubscribeMessage("send_message")
-  @UseGuards(WsGuard, MessageGuard)
+  @UseGuards(JwtSocketGuard)
   handleSendMessage(
     @MessageBody("user")
     user: {
@@ -80,7 +81,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     },
     @MessageBody("message") message: string,
     @ConnectedSocket() socket: Socket,
-    @Req() request: any,
+    @Req() request: Request,
   ): void {
     if (!message) return;
 
@@ -93,16 +94,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
 
     this.messageService.addMessage({
-      sender: request.user_id,
+      sender: (request.user as User)._id,
       content: message,
     });
   }
 
   @SubscribeMessage("user_disconnect")
-  @UseGuards(WsGuard)
-  handleUserDisconnect(@ConnectedSocket() socket: Socket): void {
-    const token: UserToken = this.jwt.decode(socket.handshake.auth.token);
-    this.removeUser(token.firstName, token.lastName);
+  @UseGuards(JwtSocketGuard)
+  handleUserDisconnect(
+    @ConnectedSocket() socket: Socket,
+    @Req() request: Request,
+  ): void {
+    const user = request.user as User;
+    this.removeUser(user.firstName, user.lastName);
     this.updateConnectUsers();
   }
 }

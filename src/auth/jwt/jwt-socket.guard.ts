@@ -5,7 +5,7 @@ import { UserToken } from "src/types/UserToken";
 import { UserService } from "src/user/user.service";
 
 @Injectable()
-export class MessageGuard implements CanActivate {
+export class JwtSocketGuard implements CanActivate {
   constructor(
     private readonly jwt: JwtService,
     private readonly userService: UserService,
@@ -14,11 +14,14 @@ export class MessageGuard implements CanActivate {
   async canActivate(context: ExecutionContext) {
     const client = context.switchToWs().getClient<Socket>();
     const req = context.switchToHttp().getRequest();
-    const token = client.handshake.auth.token;
-    const userToken: UserToken = this.jwt.decode(token);
-    const user = await this.userService.getUserByEmail(userToken.email);
 
-    req.user_id = user._id.toString();
+    const token: UserToken = this.jwt.decode(client.handshake.auth.token);
+    if (!token) {
+      return false;
+    }
+
+    const user = await this.userService.handleUserForGuard(token);
+    req.user = user;
 
     return true;
   }
