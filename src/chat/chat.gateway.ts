@@ -29,21 +29,21 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {}
 
   handleConnection(client: Socket, ...args: any[]) {
-    if (client.handshake.auth.token) {
-      const token: UserToken = this.jwt.decode(client.handshake.auth.token);
+    try {
+      const token: UserToken = this.jwt.verify(client.handshake.auth.token);
       this.connectedUsers.push(
         this.getFullName(token.firstName, token.lastName),
       );
       this.updateConnectUsers();
-    }
+    } catch {}
   }
 
   handleDisconnect(client: Socket) {
-    if (client.handshake.auth.token) {
-      const token: UserToken = this.jwt.decode(client.handshake.auth.token);
+    try {
+      const token: UserToken = this.jwt.verify(client.handshake.auth.token);
       this.removeUser(token.firstName, token.lastName);
       this.updateConnectUsers();
-    }
+    } catch {}
   }
 
   updateConnectUsers() {

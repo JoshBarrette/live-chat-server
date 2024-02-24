@@ -15,15 +15,14 @@ export class JwtHttpGuard implements CanActivate {
     const req = context.switchToHttp().getRequest<Request>();
     const res = context.switchToHttp().getResponse<Response>();
 
-    const token: UserToken = this.jwt.decode(req.headers.authorization);
-    if (!token) {
+    try {
+      const token: UserToken = this.jwt.verify(req.headers.authorization);
+      const user = await this.userService.handleUserForGuard(token);
+      req.user = user;
+      return true;
+    } catch (e) {
       res.redirect("/api/auth/jwt/clearCookie");
       return false;
     }
-
-    const user = await this.userService.handleUserForGuard(token);
-    req.user = user;
-
-    return true;
   }
 }

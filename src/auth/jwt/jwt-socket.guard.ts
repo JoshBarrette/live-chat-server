@@ -15,14 +15,13 @@ export class JwtSocketGuard implements CanActivate {
     const client = context.switchToWs().getClient<Socket>();
     const req = context.switchToHttp().getRequest();
 
-    const token: UserToken = this.jwt.decode(client.handshake.auth.token);
-    if (!token) {
+    try {
+      const token: UserToken = this.jwt.verify(client.handshake.auth.token);
+      const user = await this.userService.handleUserForGuard(token);
+      req.user = user;
+      return true;
+    } catch (e) {
       return false;
     }
-
-    const user = await this.userService.handleUserForGuard(token);
-    req.user = user;
-
-    return true;
   }
 }

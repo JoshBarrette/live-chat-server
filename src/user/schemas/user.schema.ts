@@ -22,6 +22,9 @@ export class User {
   picture: string;
 
   @Prop({ default: false })
+  admin: boolean;
+
+  @Prop({ default: false })
   banned: boolean;
 }
 
