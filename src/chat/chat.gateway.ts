@@ -28,7 +28,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly jwt: JwtService,
   ) {}
 
-  handleConnection(client: Socket, ...args: any[]) {
+  async handleConnection(client: Socket, ...args: any[]) {
     try {
       const token: UserToken = this.jwt.verify(client.handshake.auth.token);
       this.connectedUsers.push(
@@ -36,6 +36,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
       this.updateConnectUsers();
     } catch {}
+
+    const newMessages = await this.messageService.getRecentMessages();
+    if (!newMessages) return;
+
+    const messagesToSend = newMessages.map((mes) => {
+      return {
+        username: this.getFullName(mes.sender.firstName, mes.sender.lastName),
+        content: mes.content,
+        picture: mes.sender.picture,
+      };
+    });
+    client.emit("recent_messages", { data: messagesToSend });
   }
 
   handleDisconnect(client: Socket) {
@@ -79,23 +91,23 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       lastName: string;
       picture: string;
     },
-    @MessageBody("message") message: string,
+    @MessageBody("content") content: string,
     @ConnectedSocket() socket: Socket,
     @Req() request: Request,
   ): void {
-    if (!message) return;
+    if (!content) return;
 
     this.server.emit("new_message", {
       data: {
         username: this.getFullName(user.firstName, user.lastName),
-        message,
+        content,
         picture: user.picture,
       },
     });
 
     this.messageService.addMessage({
       sender: (request.user as User)._id,
-      content: message,
+      content: content,
     });
   }
 

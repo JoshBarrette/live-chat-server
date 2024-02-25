@@ -16,4 +16,13 @@ export class MessageService {
       content: message.content,
     });
   }
+
+  async getRecentMessages() {
+    const fiveMinutes = new Date(Date.now() - 5 * 60 * 1000);
+
+    return await this.messageModel
+      .find({ createdAt: { $gt: fiveMinutes } })
+      .populate("sender", "firstName lastName picture")
+      .limit(10);
+  }
 }
