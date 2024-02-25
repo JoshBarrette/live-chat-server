@@ -22,6 +22,7 @@ export class MessageService {
 
     return await this.messageModel
       .find({ createdAt: { $gt: fiveMinutes } })
+      .sort({ createdAt: -1 })
       .populate("sender", "firstName lastName picture")
       .limit(10);
   }

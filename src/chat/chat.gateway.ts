@@ -40,13 +40,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const newMessages = await this.messageService.getRecentMessages();
     if (!newMessages) return;
 
-    const messagesToSend = newMessages.map((mes) => {
-      return {
-        username: this.getFullName(mes.sender.firstName, mes.sender.lastName),
-        content: mes.content,
-        picture: mes.sender.picture,
-      };
-    });
+    const messagesToSend = newMessages
+      .map((mes) => {
+        return {
+          username: this.getFullName(mes.sender.firstName, mes.sender.lastName),
+          content: mes.content,
+          picture: mes.sender.picture,
+        };
+      })
+      .reverse();
     client.emit("recent_messages", { data: messagesToSend });
   }
 
