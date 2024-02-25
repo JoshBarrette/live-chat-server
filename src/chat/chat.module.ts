@@ -4,6 +4,9 @@ import { JwtModule } from "../auth/jwt/jwt.module";
 import { MessageModule } from "src/message/message.module";
 import { UserModule } from "src/user/user.module";
 
+/**
+ * Handles the chat gateway
+ */
 @Module({
   imports: [JwtModule, MessageModule, UserModule],
   providers: [ChatGateway],

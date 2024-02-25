@@ -10,6 +10,11 @@ export class MessageService {
     @InjectModel(Message.name) private messageModel: Model<Message>,
   ) {}
 
+  /**
+   * Adds new messages to the DB
+   * @param message The message to add
+   * @returns The added message
+   */
   async addMessage(message: MessageDto) {
     return await this.messageModel.create({
       sender: message.sender,
@@ -17,6 +22,10 @@ export class MessageService {
     });
   }
 
+  /**
+   * Gets the 10 most recent messages sent in the last 5 minutes
+   * @returns The messages
+   */
   async getRecentMessages() {
     const fiveMinutes = new Date(Date.now() - 5 * 60 * 1000);
 

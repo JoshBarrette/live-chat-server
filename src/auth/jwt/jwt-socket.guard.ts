@@ -4,6 +4,9 @@ import { Socket } from "socket.io";
 import { UserToken } from "src/types/UserToken";
 import { UserService } from "src/user/user.service";
 
+/**
+ * Handles JWT verification for Socket requests
+ */
 @Injectable()
 export class JwtSocketGuard implements CanActivate {
   constructor(

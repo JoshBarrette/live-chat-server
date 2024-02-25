@@ -6,6 +6,9 @@ import { ConfigModule } from "@nestjs/config";
 import { UserModule } from "src/user/user.module";
 import { JwtSocketGuard } from "./jwt-socket.guard";
 
+/**
+ * Handles JWT verification and sets JWT secret
+ */
 @Module({
   imports: [
     ConfigModule.forRoot(), // For some reason this needs to be here

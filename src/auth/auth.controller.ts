@@ -8,10 +8,19 @@ import { UserSignInGuard } from "src/user/user-sign-in.guard";
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  /**
+   * Call this endpoint to login
+   */
   @Get("google/login")
   @UseGuards(AuthGuard("google"))
   handleLogin() {}
 
+  /**
+   * Handles the redirect from Google after logging in
+   * @param req
+   * @param res
+   * @returns AuthService handler
+   */
   @Get("google/redirect")
   @UseGuards(AuthGuard("google"), UserSignInGuard)
   handleRedirect(

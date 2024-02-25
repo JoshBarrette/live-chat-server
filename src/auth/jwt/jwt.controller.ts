@@ -7,6 +7,11 @@ import { Response } from "express";
 export class JwtController {
   constructor(private jwt: JwtService) {}
 
+  /**
+   *
+   * @param s The JWT to verify
+   * @returns JSON with valid as boolean which indicates whether the JWT is valid or not
+   */
   @Get("verify/:id")
   handleVerify(@Param("id") s: string) {
     try {
@@ -24,6 +29,11 @@ export class JwtController {
     }
   }
 
+  /**
+   * Clears chat_token cookie
+   * @param res 
+   * @returns res
+   */
   @Get("clearCookie")
   clearCookie(@Res({ passthrough: true }) res: Response) {
     return res.clearCookie("chat_token");

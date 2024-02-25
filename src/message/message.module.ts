@@ -5,6 +5,9 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { JwtModule } from "../auth/jwt/jwt.module";
 import { UserModule } from "src/user/user.module";
 
+/**
+ * Handles all messages sent in chat
+ */
 @Module({
   imports: [
     JwtModule,

@@ -5,6 +5,9 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { User, UserSchema } from "./schemas/user.schema";
 import { UserSignInGuard } from "./user-sign-in.guard";
 
+/**
+ * Handles all the users that sign in and send messages in chat
+ */
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),

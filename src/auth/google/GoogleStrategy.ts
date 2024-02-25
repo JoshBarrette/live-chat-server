@@ -2,6 +2,9 @@ import { PassportStrategy } from "@nestjs/passport";
 import { Profile, Strategy, VerifyCallback } from "passport-google-oauth20";
 import { UserToken } from "../../types/UserToken";
 
+/**
+ * Sets the user object from Google
+ */
 export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
   constructor() {
     super({

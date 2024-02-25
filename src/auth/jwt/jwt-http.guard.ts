@@ -4,6 +4,9 @@ import { JwtService } from "@nestjs/jwt";
 import { UserService } from "src/user/user.service";
 import { UserToken } from "src/types/UserToken";
 
+/**
+ * Handles JWT verification for HTTP requests
+ */
 @Injectable()
 export class JwtHttpGuard implements CanActivate {
   constructor(

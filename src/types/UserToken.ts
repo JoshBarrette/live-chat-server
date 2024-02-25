@@ -1,3 +1,6 @@
+/**
+ * The user object returned from Google
+ */
 export interface UserToken {
   email: string;
   firstName: string;

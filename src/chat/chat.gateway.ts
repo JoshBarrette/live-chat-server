@@ -28,6 +28,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly jwt: JwtService,
   ) {}
 
+  /**
+   * Handles new client connections and sends any recent messages
+   * @param client The new client
+   * @param args 
+   * @returns void
+   */
   async handleConnection(client: Socket, ...args: any[]) {
     try {
       const token: UserToken = this.jwt.verify(client.handshake.auth.token);

@@ -6,6 +6,9 @@ import { AuthService } from "./auth.service";
 import { UserModule } from "../user/user.module";
 import { MessageModule } from "src/message/message.module";
 
+/**
+ * Handles Google logins
+ */
 @Module({
   imports: [JwtModule, UserModule, MessageModule],
   controllers: [AuthController],
