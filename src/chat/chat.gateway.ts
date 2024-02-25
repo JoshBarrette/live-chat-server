@@ -12,36 +12,47 @@ import { Server, Socket } from "socket.io";
 import { MessageService } from "src/message/message.service";
 import { JwtService } from "@nestjs/jwt";
 import { UserToken } from "src/types/UserToken";
-import { Request } from "express";
+import e, { Request } from "express";
 import { User } from "src/user/schemas/user.schema";
 import { JwtSocketGuard } from "src/auth/jwt/jwt-socket.guard";
+import { UserService } from "src/user/user.service";
+
+type ConnectedUser = {
+  userID: string;
+  username: string;
+  count: number;
+};
 
 @WebSocketGateway({ namespace: "chat" })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private server: Server;
 
-  private connectedUsers: string[] = [];
+  /**
+   * Keeps track of who is signed in and how many instances that they have open
+   */
+  private connectedUsers: ConnectedUser[] = [];
 
   constructor(
     private readonly messageService: MessageService,
     private readonly jwt: JwtService,
+    private readonly userService: UserService,
   ) {}
 
   /**
    * Handles new client connections and sends any recent messages
    * @param client The new client
-   * @param args 
+   * @param args
    * @returns void
    */
   async handleConnection(client: Socket, ...args: any[]) {
     try {
       const token: UserToken = this.jwt.verify(client.handshake.auth.token);
-      this.connectedUsers.push(
-        this.getFullName(token.firstName, token.lastName),
-      );
+      await this.addUser(token);
+    } catch {
+    } finally {
       this.updateConnectUsers();
-    } catch {}
+    }
 
     const newMessages = await this.messageService.getRecentMessages();
     if (!newMessages) return;
@@ -58,24 +69,60 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.emit("recent_messages", { data: messagesToSend });
   }
 
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket) {
     try {
       const token: UserToken = this.jwt.verify(client.handshake.auth.token);
-      this.removeUser(token.firstName, token.lastName);
-      this.updateConnectUsers();
+      await this.removeUserByToken(token);
     } catch {}
   }
 
   updateConnectUsers() {
     this.server.emit("update_connected_users", {
-      data: { users: this.connectedUsers },
+      data: { users: this.connectedUsers.map((u) => u.username) },
     });
   }
 
-  removeUser(first: string, last: string) {
-    this.connectedUsers = this.connectedUsers.filter(
-      (u) => u !== this.getFullName(first, last),
-    );
+  async addUser(token: UserToken) {
+    const user = await this.userService.getUserByEmail(token.email);
+    const username = this.getFullName(user.firstName, user.lastName);
+
+    for (let i = 0; i < this.connectedUsers.length; i++) {
+      if (this.connectedUsers[i].userID.toString() !== user._id.toString())
+        continue;
+
+      this.connectedUsers[i].count++;
+      return;
+    }
+
+    this.connectedUsers.push({
+      userID: user._id.toString(),
+      username,
+      count: 1,
+    });
+  }
+
+  async removeUserByToken(token: UserToken) {
+    const user = await this.userService.getUserByEmail(token.email);
+    this.removeUser(user);
+  }
+
+  async removeUserByID(id: string) {
+    const user = await this.userService.getUserById(id);
+    this.removeUser(user);
+  }
+
+  removeUser(user: User) {
+    this.connectedUsers = this.connectedUsers.filter((u) => {
+      if (u.userID.toString() !== user._id.toString()) return true;
+
+      u.count--;
+      if (u.count <= 0) {
+        return false;
+      }
+
+      return true;
+    });
+    this.updateConnectUsers();
   }
 
   getFullName(first: string, last: string | undefined): string {
@@ -126,7 +173,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @Req() request: Request,
   ): void {
     const user = request.user as User;
-    this.removeUser(user.firstName, user.lastName);
-    this.updateConnectUsers();
+    this.removeUserByID(user._id);
   }
 }
