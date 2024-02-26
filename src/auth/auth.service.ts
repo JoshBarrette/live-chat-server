@@ -12,7 +12,7 @@ export class AuthService {
    * @param req
    * @param res
    * @returns Sets cookie on res and redirects to front end. On error
-   * it will send an error and redirect to front end with no cookie and 
+   * it will send an error and redirect to front end with no cookie and
    * try to clear any cookie that might be there already.
    */
   handleRedirect(req: Request, res: Response) {
@@ -37,6 +37,7 @@ export class AuthService {
           path: "/",
           maxAge: 1000 * 60 * 60 * 12, // 12 hours
           secure: true,
+          domain: process.env.FRONT_END_URL,
         },
       )
       .redirect(`${process.env.FRONT_END_URL}`);
