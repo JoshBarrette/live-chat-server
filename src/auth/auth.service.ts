@@ -24,22 +24,23 @@ export class AuthService {
     }
 
     const newUser: UserDto = req.user as UserDto;
+    const newToken = this.jwt.sign({
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
+      email: newUser.email,
+      picture: newUser.picture,
+    })
+    
     return res
-      .cookie(
-        "chat_token",
-        this.jwt.sign({
-          firstName: newUser.firstName,
-          lastName: newUser.lastName,
-          email: newUser.email,
-          picture: newUser.picture,
-        }),
-        {
-          path: "/",
-          maxAge: 1000 * 60 * 60 * 12, // 12 hours
-          secure: true,
-          domain: process.env.FRONT_END_URL,
-        },
-      )
-      .redirect(`${process.env.FRONT_END_URL}`);
+      // .cookie(
+      //   "chat_token",
+      //   newToken,
+      //   {
+      //     path: "/",
+      //     maxAge: 1000 * 60 * 60 * 12, // 12 hours
+      //     secure: true,
+      //   },
+      // )
+      .redirect(`${process.env.FRONT_END_URL}/?token=${newToken}`);
   }
 }
