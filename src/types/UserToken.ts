@@ -6,5 +6,4 @@ export interface UserToken {
   firstName: string;
   lastName: string;
   picture: string;
-  accessToken: string;
 }

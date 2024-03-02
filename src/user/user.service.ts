@@ -31,15 +31,7 @@ export class UserService {
    * @returns The User with the given email
    */
   getUserByEmail(email: string): Promise<User> {
-    return new Promise<User>(
-      async (res, rej) =>
-        await this.userModel
-          .findOne({ email: email })
-          .then((user) => {
-            res(user);
-          })
-          .catch((e) => rej(e)),
-    );
+    return this.userModel.findOne({ email });
   }
 
   /**
@@ -48,15 +40,7 @@ export class UserService {
    * @returns The User with the given ID
    */
   getUserById(id: string): Promise<User> {
-    return new Promise<User>(
-      async (res, rej) =>
-        await this.userModel
-          .findById(id)
-          .then((user) => {
-            res(user);
-          })
-          .catch((e) => rej(e)),
-    );
+    return this.userModel.findById(id);
   }
 
   /**
@@ -80,9 +64,9 @@ export class UserService {
    * @returns The DB of the User, new or otherwise
    */
   async handleUserForGuard(token: UserToken): Promise<User> {
-    const user = await this.getUserByEmail(token.email);
+    let user = await this.getUserByEmail(token.email);
     if (!user) {
-      var newUser = await this.addUser({
+      user = await this.addUser({
         email: token.email,
         firstName: token.firstName,
         lastName: token.lastName,
@@ -92,6 +76,6 @@ export class UserService {
       await this.updateUserPicture(user.picture, user.email);
     }
 
-    return user ?? newUser;
+    return user;
   }
 }
