@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Request, Response } from "express";
 import { JwtService } from "@nestjs/jwt";
-import { UserDto } from "src/user/schemas/user.dto";
+import { User } from "src/user/schemas/user.schema";
 
 @Injectable()
 export class AuthService {
@@ -21,26 +21,24 @@ export class AuthService {
         .send({ error: "No user from google" })
         .clearCookie("chat_token")
         .redirect(`${process.env.FRONT_END_URL}`);
+
+      return;
     }
 
-    const newUser: UserDto = req.user as UserDto;
+    const newUser = req.user as User;
     const newToken = this.jwt.sign({
       firstName: newUser.firstName,
       lastName: newUser.lastName,
       email: newUser.email,
       picture: newUser.picture,
-    })
-    
+    });
+
     return res
-      .cookie(
-        "chat_token",
-        newToken,
-        {
-          path: "/",
-          maxAge: 1000 * 60 * 60 * 12, // 12 hours
-          secure: true,
-        },
-      )
-      // .redirect(`${process.env.FRONT_END_URL}/?token=${newToken}`);
+      .cookie("chat_token", newToken, {
+        path: "/",
+        maxAge: 1000 * 60 * 60 * 12, // 12 hours
+        secure: true,
+      })
+      .redirect(`${process.env.FRONT_END_URL}`);
   }
 }

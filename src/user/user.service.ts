@@ -14,15 +14,8 @@ export class UserService {
    * @param newUser The user to add
    * @returns The added user
    */
-  addUser(newUser: UserDto): Promise<User> {
-    return new Promise<User>(async (res, rej) => {
-      try {
-        const user = await this.userModel.create(newUser);
-        res(user);
-      } catch (e) {
-        rej(e);
-      }
-    });
+  async addUser(newUser: UserDto) {
+    return await this.userModel.create(newUser);
   }
 
   /**
