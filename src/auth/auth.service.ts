@@ -36,7 +36,10 @@ export class AuthService {
     return res
       .cookie("chat_token", newToken, {
         path: "/",
-        domain: process.env.FRONT_END_URL.split("//")[1],
+        domain:
+          process.env.FRONT_END_URL === "http://localhost:3000"
+            ? process.env.FRONT_END_URL
+            : ".barrette.dev",
         maxAge: 1000 * 60 * 60 * 12, // 12 hours
         secure: true,
       })
