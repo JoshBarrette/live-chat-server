@@ -32,15 +32,15 @@ export class AuthService {
     })
     
     return res
-      // .cookie(
-      //   "chat_token",
-      //   newToken,
-      //   {
-      //     path: "/",
-      //     maxAge: 1000 * 60 * 60 * 12, // 12 hours
-      //     secure: true,
-      //   },
-      // )
-      .redirect(`${process.env.FRONT_END_URL}/?token=${newToken}`);
+      .cookie(
+        "chat_token",
+        newToken,
+        {
+          path: "/",
+          maxAge: 1000 * 60 * 60 * 12, // 12 hours
+          secure: true,
+        },
+      )
+      // .redirect(`${process.env.FRONT_END_URL}/?token=${newToken}`);
   }
 }
