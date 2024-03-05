@@ -38,7 +38,7 @@ export class AuthService {
         path: "/",
         domain:
           process.env.FRONT_END_URL === "http://localhost:3000"
-            ? process.env.FRONT_END_URL
+            ? "localhost"
             : ".barrette.dev",
         maxAge: 1000 * 60 * 60 * 12, // 12 hours
         secure: true,

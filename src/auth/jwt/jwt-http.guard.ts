@@ -17,9 +17,12 @@ export class JwtHttpGuard implements CanActivate {
   async canActivate(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest<Request>();
     const res = context.switchToHttp().getResponse<Response>();
+    const tokenCookie = req.cookies["chat_token"];
+
+    if (!tokenCookie) return false;
 
     try {
-      const token: UserToken = this.jwt.verify(req.headers.authorization);
+      const token: UserToken = this.jwt.verify(tokenCookie);
       const user = await this.userService.handleUserForGuard(token);
       req.user = user;
       return true;
